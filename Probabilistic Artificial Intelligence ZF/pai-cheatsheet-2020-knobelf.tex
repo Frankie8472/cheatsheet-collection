@@ -1,0 +1,376 @@
+\documentclass[a4paper, 11pt, landscape]{article}
+
+\usepackage{mathptmx} % more compact font
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{mathtools}
+\usepackage{multicol}
+\usepackage{enumitem}
+\usepackage{paralist} % for compacter lists
+\usepackage{hyperref} % for Todo's and similar things
+\usepackage[left=4.5mm, right=4.5mm, top=4.5mm, bottom=6mm, landscape, nohead, nofoot]{geometry}
+\usepackage[small,compact]{titlesec}
+\usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
+\usepackage{xparse}
+
+% compact text
+\linespread{0.9}
+\setlength{\parindent}{0pt}
+
+% compact lists even more
+\setdefaultleftmargin{0em}{0em}{0em}{0em}{0em}{0em}
+
+% compact sections
+\titlespacing*{\section}{0pt}{0em}{0em}
+\titlespacing*{\subsection}{0pt}{0em}{0em}
+\titlespacing*{\subsubsection}{0pt}{0em}{0em}
+
+% coloured section headings for easier read
+\titleformat{name=\section}[block]
+  {\sffamily}
+  {}
+  {0pt}
+  {\colorsection}
+\newcommand{\colorsection}[1]{%
+	\colorbox{red!10}{\parbox[t][0em]{\dimexpr\columnwidth-2\fboxsep}{\thesection\ #1}}}
+
+
+\titleformat{name=\subsection}[block]
+  {\sffamily}
+  {}
+  {0pt}
+  {\subcolorsection}
+\newcommand{\subcolorsection}[1]{%
+	\colorbox{orange!10}{\parbox[t][0em]{\dimexpr\columnwidth-2\fboxsep}{\thesubsection\ #1}}}
+
+
+\titleformat{name=\subsubsection}[block]
+  {\sffamily}
+  {}
+  {0pt}
+  {\subsubcolorsection}
+\newcommand{\subsubcolorsection}[1]{%
+	\colorbox{blue!10}{\parbox[t][0em]{\dimexpr\columnwidth-2\fboxsep}{\thesubsubsection\ #1}}}
+	
+% environment for multicols inside a list
+\NewDocumentEnvironment{listcols}{O{2} O{0pt}}
+	{%
+		\bgroup %
+		\setlength{\multicolsep}{#2} %
+		\begin{multicols*}{#1} %
+	}
+	{%
+		\end{multicols*} %
+		\egroup %
+	}
+
+% multicols lines & spacing
+\setlength{\columnsep}{0.2cm}
+\setlength{\columnseprule}{0.2pt}
+
+% No page numbers
+\pagenumbering{gobble}
+
+% math helpers
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+\begin{document}
+\begin{multicols*}{3}
+
+\section{Probability Calculus}
+$P(X|Y) \text{=} \frac{P(X)P(Y|X)}{\sum_{x}P(X)P(Y|X)}\text{=}\frac{Prior \times Likelihood}{Evidence}$ \space $P(X)\text{=}\sum\limits_{Z} P(X,Z)$
+\newline $P(X,Y,Z)\text{=}P(X)P(Y|X)P(Z|X,Y)$\space\space$P(X,Y|Z)\text{=}P(X|Z)P(Y|Z)$
+\newline $var(Y)\text{=}E_x[var(Y|X)]\text{+}var_x(E(Y|X))$\space\space$P(X|Y,Z)\text{=}P(X|Z)$
+\newline $var(X)\text{=}cov(X,X)$\space\space$var(f\text{-}g)\text{=}var(f)\text{+}var(g)\text{-}2cov(f,g)$
+\newline $cov(X,Y)\text{=}E[(X\text{-}E[X])(Y\text{-}E[Y])]$\space\space$\mathcal{N}(\boldsymbol\mu,\boldsymbol\sigma)\text{=}\frac{1}{\sigma \sqrt{2\pi} } e^{\text{-}\frac{1}{2}\left(\frac{x\text{-}\mu}{\sigma}\right)^2}$ 
+\newline $\mathcal{N}(\boldsymbol\mu,\boldsymbol\Sigma)\text{=}(2\pi)^{\text{-}\frac{n}{2}}|(\boldsymbol\Sigma)|^{\text{-}\frac{1}{2}}e^{\text{-}\frac{1}{2}(\mathbf{x}\text{-}\boldsymbol\mu)^{{{\!\mathsf{T}}}} \boldsymbol\Sigma^{\text{-}1}(\mathbf{x}\text{-}\boldsymbol\mu)}$ \space\space (mult+sums)
+\newline $p(X_A|X_B)\text{=}\mathcal{N}(\mu_A\text{+}\Sigma_{AB}\Sigma_{BB}^{\text{-}1}(x_B\text{-}\mu_B)$,\space\space$\Sigma_{A|B}\text{=}\Sigma_{AA}\text{-}\Sigma_{AB}\Sigma_{BB}^{\text{-}1}\Sigma_{BA})$
+
+\section{Linear Conditioning (e.g $y\text{=}Ax\text{+}b\text{+}\epsilon\sim\mathcal{N}(0,\Sigma_y)$)}
+$p(x)\text{=} \mathcal{N}(\mu,\Sigma_x)$,\space\space\space
+$p(y|x)\text{=}\mathcal{N}(Ax\text{+}b,\Sigma_{y|x})$
+\newline $p(y)\text{=}\mathcal{N} (y;A\mu\text{+}b,\Sigma_{y|x}\text{+}A\Sigma_{x}A^T)$
+
+\section{Bayesian Learning (Get posterior of $\theta$ and predict)}
+\textbf{BLR and RR}: $y = \mathbf{w}^T \mathbf{x} + \mathbf{\epsilon}$, $ \mathbf{\epsilon} \ \sim\ \mathcal{N}(0, \sigma_n^2 \boldsymbol I)$
+\newline$\min _{\mathbf{w}} \sum_{i}^{n}\left(y_{i}-\mathbf{w}^{T} \mathbf{x}_{i}\right)^{2}+\lambda\|\mathbf{w}\|_{2}^{2},$
+        \space $\hat{\mathbf{w}}=\left(\mathbf{X}^{T} \mathbf{X}+\lambda \mathbf{I}\right)^{-1} \mathbf{X}^{T} \mathbf{y}$
+
+\subsection{Bayesian Regression}
+
+\subsubsection{MAP $\equiv$ RR}
+$\arg \max _{\mathbf{w}} P(\mathbf{w}) \prod_{i} P\left(y_{i} \mid \mathbf{x}_{i}, \mathbf{w}\right),$\space$\lambda = {\sigma_n^2}/{\sigma_p^2}$
+\newline $\sigma_p^2$ stands for prior (acts as Regulizer)
+
+\subsubsection{Posterior $p(\mathbf{w} \mid \mathbf{X}, \mathbf{y})=\mathcal{N}(\mathbf{w} ; \bar{\mu}, \bar{\Sigma})$}
+$p(\mathbf{w})=\mathcal{N}(0, \sigma_p^2 \mathbf{I}),$
+        \space\space\space $p\left(y \mid \mathbf{x}, \mathbf{w}, \sigma_{n}\right)=\mathcal{N}\left(y ; \mathbf{w}^{T} \mathbf{x}, \sigma_{n}^{2}\right)$
+\newline $\bar{\mu}=\left(\mathbf{X}^{T} \mathbf{X}+(\sigma_{n}^{2}/\sigma_p^2) \mathbf{I}\right)^{-1} \mathbf{X}^{T} \mathbf{y},$
+        \space\space\space $\bar{\Sigma}=\left(\sigma_{n}^{-2} \mathbf{X}^{T} \mathbf{X}+\sigma_p^{-2}\mathbf{I}\right)^{-1}$
+
+\subsubsection{Predictions $p\left(y^{*} \mid \mathbf{X}, \mathbf{y}, \mathbf{x}^{*}\right)$}
+$= \int p(y^{*}|x^{*},w)p(w|\mathbf{X}, \mathbf{y})dw=\mathcal{N}\left(\bar{\mu}^{T} \mathbf{x}^{*}, \mathbf{x}^{* T} \bar{\Sigma} \mathbf{x}^{*}+\sigma_{n}^{2}\right)$
+\newline $\mathbf{x}^{* T} \bar{\Sigma} \mathbf{x}^{*}$: Uncertainty about $f^*$(epistemic)
+\newline $\sigma_{n}^{2}$: Noise / uncertainty about $y^*$ given $f^*$(aleatoric)
+
+\subsubsection{Recursive Bayesian Updates}
+$p^{j+1}(\theta) = p(\theta|y_{1:j+1}) = \frac{1}{Z}p(\theta|y_{1:j})p(y_{j+1}|\theta,y_{1:j})$
+\newline $p(\theta|y_{1:j}) = p^{j}(\theta)$, $p(y_{j+1}|\theta,y_{1:j}) = p_{j+1}(y_{j+1}|\theta)$
+
+\subsection{Kalman Filters}
+$X_i$: Tracked object loc.,\space\space\space\space $Y_i$: Obs.,\space\space\space\space $P(X_1)$: Prior belief
+\newline $P(X_{t+1} | X_t)$ Motion (Trans): $\mathbf{X}_{t+1}=\mathbf{F} \mathbf{X}_{t}+\varepsilon_{t}$, $\varepsilon_{t} \in \mathcal{N}\left(0, \Sigma_{x}\right)$
+\newline $P(Y_{t} | X_t)$ Sensor (Obs): $\mathbf{Y}_{t}=\mathbf{H X}_{t}+\eta_{t}$, $\eta_{t} \in \mathcal{N}\left(0, \Sigma_{y}\right)$
+\newline Conditioning: $P(X_t|y_{1:t}) = \frac{1}{Z} P(X_{t} | y_{1:t-1})P(y_{t} | X_t)$
+
+\subsubsection{Parameter Estimation $y_t = x + \mu_t, \mu_t\sim\mathcal{N}(0,\sigma_y^2)$}
+$k_{t\text{+}1} \text{=} \sigma_t^2/(\sigma_t^2\text{+}\sigma_y^2)$, $\sigma_{t\text{+}1}^2\text{=}\sigma_y^2k_{t\text{+}1}$, 
+for $\sigma_{t\text{=}0}^2\to\infty$: $\mu_{t\text{+}1}\text{=}\frac{y_1\text{+}...\text{+}y_{t\text{+}1}}{t\text{+}1}$
+\newline $\sigma_{t\text{+}1}^2\text{=}\frac{\sigma_{t\text{=}0}^2\sigma_{y}^2}{(t\text{+}1)\sigma_{t\text{=}0}^2+\sigma_{y}^2}$, 
+$k_{t\text{+}1}\text{=}\frac{\sigma_{t\text{=}0}^2}{(t\text{+}1)\sigma_{t\text{=}0}^2\text{+}\sigma_{y}^2}$, 
+for $t \to \infty$: $\mu_{t\text{+}1}\to\mu_t$
+
+\subsubsection{General Kalman Update (Gaussian)}
+Transition(Motion) model: $ P\left(\mathbf{x}_{t+1} | \mathbf{x}_{t}\right) =\mathcal{N}\left(\mathbf{x}_{t+1} ; \mathbf{F} \mathbf{x}_{t}, \Sigma_{x}\right) $
+\newline Sensor model: $ P\left(\mathbf{y}_{t} | \mathbf{x}_{t}\right) =\mathcal{N}\left(\mathbf{y}_{t} ; \mathbf{H} \mathbf{x}_{t}, \Sigma_{y}\right)$
+\newline Update: $\mu_{t+1}=\mathbf{F} \mu_{t}+\mathbf{K}_{t+1}\left(\mathbf{y}_{t+1}-\mathbf{H} \mathbf{F} \mu_{t}\right)$
+\newline $\boldsymbol{\Sigma}_{t+1}=\left(\mathbf{I}-\mathbf{K}_{k+1} \mathbf{H}\right)\left(\mathbf{F} \boldsymbol{\Sigma}_{t} \mathbf{F}^{\top}+\boldsymbol{\Sigma}_{x}\right)$
+\newline Gain: $\mathbf{K}_{t+1}=\left(\mathbf{F} \Sigma_{t} \mathbf{F}^{T}+\Sigma_{x}\right) \mathbf{H}^{T}\left(\mathbf{H}\left(\mathbf{F} \Sigma_{t} \mathbf{F}^{T}+\Sigma_{x}\right) \mathbf{H}^{T}+\Sigma_{y}\right)^{-1}$
+\newline Can compute $\boldsymbol{\Sigma}_{t}$ and $\mathbf{K}_{t}$ offline (not dependant on var $x_t$ \& $y_t$)
+
+\subsection{Kernel - Lin. method (BLR) on nonlin. transf. data}
+Cost proportional to dim of feature space, $\mathbf{x}_i^T \mathbf{x}_j \Longrightarrow k(\mathbf{x}_i,\mathbf{x}_j)$
+\newline $p(\mathbf{w})=\mathcal{N}(0, \sigma_p^2 \mathbf{I})$, \space\space $f = \mathbf{X} \mathbf{w} \Longrightarrow f \sim \mathcal{N}(0, \sigma_p^2 \mathbf{X}\mathbf{X}^T)$
+\newline Kernelize: $f \sim \mathcal{N}(0, \sigma_p^2 \mathbf{K})$, Symmetric \& Positive Definite
+\newline $k\left(\mathbf{x}, \mathbf{x}^{\prime}\right)=k_{1}\left(\mathbf{x}, \mathbf{x}^{\prime}\right)+k_{2}\left(\mathbf{x}, \mathbf{x}^{\prime}\right)$, \space\space $k\left(\mathbf{x}, \mathbf{x}^{\prime}\right)=k_{1}\left(\mathbf{x}, \mathbf{x}^{\prime}\right) k_{2}\left(\mathbf{x}, \mathbf{x}^{\prime}\right)$
+\newline $k\left(\mathbf{x}, \mathbf{x}^{\prime}\right)=c k_{1}\left(\mathbf{x}, \mathbf{x}^{\prime}\right)$ for $c>0$, \space\space $k\left(\mathbf{x}, \mathbf{x}^{\prime}\right)=f\left(k_{1}\left(\mathbf{x}, \mathbf{x}^{\prime}\right)\right)$
+\newline \textit{Linear}: $x^Tx'$, $\phi(x)^T\phi(x')$, $\phi(x) \rightarrow$ poly, sine, ...
+\newline \textit{RBF, Gauss}: $\exp \left(-|| x-x^{\prime}||_{2}^{2} / h^{2}\right)$, Exp.: $\exp \left(-|| x-x^{\prime}||_{2} / h\right)$
+\newline \textit{Matérn}: $\sigma^2\frac{2^{1-\nu}}{\Gamma(\nu)}\left(\frac{\sqrt{2 \nu}\left\|\mathbf{x}-\mathbf{x}^{\prime}\right\|_{2}}{\rho}\right)^{\nu} K_{\nu}\left(\frac{\sqrt{2 \nu}\left\|\mathbf{x}-\mathbf{x}^{\prime}\right\|_{2}}{\rho}\right)$
+
+\subsection{GP}
+$p(f(x'))=G P\left(f ; \mu(x^{\prime}), k(x^{\prime},x^{\prime})\right)=\mathcal{N}(f(x') ; \mu(x') , k(x', x'))$
+\newline $\mu^{\prime}(\mathbf{x})=\mu(\mathbf{x})+\mathbf{k}_{x, A}\left(\mathbf{K}_{A A}+\sigma^{2} \mathbf{I}\right)^{-1}\left(\mathbf{y}_{A}-\mu_{A}\right)$
+\newline $k^{\prime}\left(\mathbf{x}, \mathbf{x}^{\prime}\right)=k(\mathbf{x}, \mathbf{x'})-\mathbf{k}_{x, A}\left(\mathbf{K}_{A A}+\sigma^{2} \mathbf{I}\right)^{-1} \mathbf{k}_{x^{\prime}, A}^{T}$
+\newline $var_n(f(x_*))=k(x_*,x_*)\text{-}k_*^T(K_n\text{+}\sigma_2 I_n)^{\text{-}1}k_*$
+
+\subsubsection{Model Selection, \space\space $\hat{\theta} = \arg\max_\theta p(\mathbf{y} \mid X, \theta)$}
+$\log p(\mathbf{y} \mid X, \theta)=-\frac{1}{2} \mathbf{y}^{T} \mathbf{K}_{y}^{-1} \mathbf{y}-\frac{1}{2} \log \left|\mathbf{K}_{y}\right|-\frac{n}{2} \log 2 \pi$
+\newline Or: $p(\mathbf{y} \mid X, \theta) = \int p(\mathbf{y} \mid X, f) p(f \mid \theta) df$
+
+\subsubsection{Fast GP Methods}
+Kernel function approximations, Inducing point methods
+\newline Summarize data via func. vals of $f$ at a set $u$ of $m$ ind. points
+\newline $p\left(\mathbf{f}^{*}, \mathbf{f}\right) \approx q\left(\mathbf{f}^{*}, \mathbf{f}\right)=\int q\left(\mathbf{f}^{*} \mid \mathbf{u}\right) q(\mathbf{f} \mid \mathbf{u}) p(\mathbf{u}) d \mathbf{u}$
+
+\section{Bayesian learning}
+Posterior \& Pred. not in closed-form (intractable) $\Rightarrow$ Approx.
+
+\subsection{Approximate Inference}
+$p(\theta \mid y)=\frac{1}{Z} p(\theta, y) \approx q(\theta \mid \lambda)$ or $q(\theta) =\mathcal{N}\left(\theta ; \hat{\theta}, \Lambda^{-1}\right)$
+\newline $ \hat{\theta} =\arg \max _{\theta} p(\theta \mid y)$, \space $\Lambda=-\nabla \nabla \log p(\hat{\theta} \mid y)$
+\newline $p\left(\mathbf{w} \mid \mathbf{x}_{1: n}, y_{1: n}\right) \approx q(\mathbf{w})=\mathcal{N}\left(\mathbf{w} ; \hat{\mathbf{w}} ; \Lambda^{-1}\right)$
+\newline $p\left(y^{*} \mid \mathbf{x}^{*}, \mathbf{x}_{1: n}, y_{1: n}\right) \approx \int \sigma\left(y^{*} \mathbf{w}^{T} \mathbf{x}\right) \mathcal{N}\left(\mathbf{w} ; \hat{\mathbf{w}}, \Lambda^{-1}\right) d \mathbf{w} =$
+\newline $\int \sigma\left(y^{*} f\right) \mathcal{N}\left(f ; \hat{\mathbf{w}}^{T} \mathbf{x}^{*}, \mathbf{x}^{* T} \Lambda^{-1} \mathbf{x}^{*}\right) d f$
+
+\subsection{Variational Inference $q^{*} \in \arg \min _{q \in Q} K L(q \| p)$}
+
+\subsection{KL-Divergence (non-negative)}
+$K L(q \| p)=\int q(\theta) \log \frac{q(\theta)}{p(\theta)} d \theta$
+\newline $\arg \min _{q} K L(q \| p)=\arg \min _{q} \int q(\theta) \log \frac{q(\theta)}{\frac{1}{Z} p(\theta, y)} d \theta =$
+\newline $\arg \max _{q} \{\mathbb{E}_{\theta \sim q(\theta)}[\log p(\theta, y)]+H(q)\}=$
+\newline $\arg \max _{q} \{\mathbb{E}_{\theta \sim q(\theta)}[\log p(y \mid \theta)]-K L(q \| p(\cdot))\}$
+\newline $D_{KL}(p||q)=\sum_x\sum_y p(x,y)log p(x,y)/q(x)q(y)\text{=}D_{KL x}\text{-}D_{KL y}\text{+}c$
+\subsubsection{Inference as Optimization (ELBO)}
+$\mathcal{L}(q) = \mathbb{E}_{\theta \sim q(\theta)}[\log p(\theta, y)]+H(q)$, \space\space\space\space\space\space\space\space\space\space\space\space $q(\theta \mid \lambda)=$
+\newline $\phi(\epsilon)\left|\nabla_{\epsilon} g(\epsilon ; \lambda)\right|^{-1} \Rightarrow \nabla_{\lambda} \mathbb{E}_{\theta \sim q_{\lambda}}[f(\theta)] {=} \mathbb{E}_{\epsilon \sim \phi}\left[\nabla_{\lambda} f(g(\epsilon ; \lambda))\right]$
+
+\subsubsection{Hoeffding's Inequality}
+$P(|\mathbf{E}[f(x)] -\frac 1  N \sum _i = 1 ^N f(x_i))| > \epsilon) \leq 2\exp(-\frac{2N\epsilon^2}{C^2})$
+
+\section{Markov-Chain Monte Carlo (MCMC)}
+$\mathbb{E}_{\theta \sim p(\cdot \mid x_{1:n},y_{1:n})}[f(\theta)] \approx \frac{1}{N} \sum_{i=1}^{N} f\left(\theta^{i}\right)$, $f\left(\theta\right) = p(y^* \mid x^*,\theta)$
+\newline Given Unnormalized Distribution: $P(x) = \frac{1}{Z}Q(x) = \pi(\mathbf{x})$
+\newline \textbf{Ergodic}: $\lim\limits_{N \rightarrow \infty}  P\left(X_{N}=x\right)=\pi(x)$, independent of $P(X_1)$
+\newline $\mathbb{E}\left[f(\mathbf{X}) \mid \mathbf{x}_{B}\right] \approx \frac{1}{T-t_{0}} \sum_{\tau=t_{0}+1}^{T} f\left(\mathbf{X}^{(\tau)}\right)$
+
+\subsection{Metropolis Hastings (MH)}
+Detailed Balance Equation $Q(\mathbf{x}) P\left(\mathbf{x}^{\prime} \mid \mathbf{x}\right)=Q\left(\mathbf{x}^{\prime}\right) P\left(\mathbf{x} \mid \mathbf{x}^{\prime}\right)$
+\newline Proposal dist. (Transition prob.): $x^{\prime}\sim R(X' | X)$
+\newline $\alpha=\min \left\{1, \frac{Q\left(x^{\prime}\right) R\left(x \mid x^{\prime}\right)}{Q(x) R\left(x^{\prime} \mid x\right)}\right\} \rightarrow X_{t+1} = x'$, \space\space $1-\alpha \rightarrow X_{t+1} = x$
+
+\subsection{Gibbs Sampling (Random Order, Practical Variant)}
+$x^{(0)}$ to all variables, fix observed varss $X_B$ to observed val $x_B$
+\newline for$(t=1$ to $\infty)\{x^{(t)} = x^{(t-1)};$ 
+\newline foreach $(X_i \notin \mathbf{B})\{v_i = (x^{(t)} \neq x_i);$ sample $x^{(t)}_i$ from $P(X_i | v_i)\}\}$
+
+\subsection{MCMC for Continuous RVs: $p(\mathbf{x})=\frac{1}{Z} \exp (-f(\mathbf{x}))$}
+MH with Gaussian: $R\left(x^{\prime} \mid x\right)=\mathcal{N}\left(x^{\prime} ; x ; \tau I\right)$
+\newline MALA: $R\left(x^{\prime} \mid x\right)=\mathcal{N}\left(x^{\prime} ; x-\tau \nabla f(x) ; 2 \tau I\right)$
+\newline SGLD: $\theta \sim \exp \left(\log p(\theta)+\sum_{i=1}^{n} \log p\left(y_{i} \mid x_{i}, \theta\right)\right)$
+\newline $L(\theta) = \log p(\theta)+\sum_{i=1}^{n} \log p\left(y_{i} \mid x_{i}, \theta\right)$
+
+\section{Bayesian Neural Networks}
+$p(\theta)=\mathcal{N}\left(\theta ; 0, \sigma_{p}^{2} I\right)$, \space\space $p(y \mid \mathbf{x}, \theta)=\mathcal{N}\left(y ; f(\mathbf{x}, \theta), \sigma^{2}\right)$
+\newline Noise: $p(y \mid \mathbf{x}, \theta)=\mathcal{N}\left(y ; f_{1}(\mathbf{x}, \theta), \exp \left(f_{2}(\mathbf{x}, \theta)\right)\right)$
+\newline $\hat{\theta}=\arg \min _{\theta}\{-\log p(\theta)-\sum_{i=1}^{n} \log p\left(y_{i} \mid \mathbf{x}_{i}, \theta\right)\}=\arg \min _{\theta}$
+\newline $\{-\lambda\|\theta\|_{2}^{2}+\sum_{i=1}^{n} \frac{1}{2 \sigma\left(\mathbf{x}_{i} ; \theta\right)^{2}}\left\|y_{i}-\mu\left(\mathbf{x}_{i} ; \theta\right)\right\|^{2}+\frac{1}{2} \log \sigma\left(\mathbf{x}_{i} ; \theta\right)^{2}\}$
+\newline Integrals are Intractable $\Rightarrow$ Approximate Inference (inf):
+\newline Variational Inf (VI), MCMC, Dropout as VI, Prob. Ensembles
+
+\section{Bayesian Learning (uncertainty decides data)}
+Active Learning (Query points whose observation provides most useful information about the unknown function)
+
+\subsection{Optimizing Mutual Information}
+$F(S):=H(f)-H\left(f \mid y_{S}\right)=I\left(f ; y_{S}\right)=\frac{1}{2} \log \left|I+\sigma^{-2} K_{S}\right|$
+\newline \textit{Greedy Algorithm}: For $S_t = \{x_1,...,x_t\}$
+\newline $x_{t+1}=\underset{{x \in D}}{\arg \max }  F\left(S_{t} \cup\{x\}\right)=\underset{{x \in D}}{\arg \max }  \sigma_{x \mid S_{t}}^{2}$
+\newline Heteroscedastic case: $x_{t+1} \in \arg \max _{x} \frac{\sigma_{f}^{2}(x)}{\sigma_{n}^{2}(x)}$
+
+\subsection{Active learning for classification}
+Max. entropy of pred. label $x_{t+1} \in \arg \max _{x} H\left(Y \mid x, x_{1: t}, y_{1: t}\right)$
+
+\subsection{Bayesian Optimization}
+\textit{Cumulative regret}: $R_{T}=\sum_{t=1}^{T}\left(\max _{x} f(x)-f\left(x_{t}\right)\right)$
+\newline $R_T/T\rightarrow 0$ $\Rightarrow$ Sublinear $\Rightarrow$ $\max _{t} f\left(x_{t}\right) \rightarrow f\left(x^{*}\right)$
+
+\subsubsection{Optimistic Bayesian Optimization with GPs}
+\textit{Acquisition Func.}: $x_{t}=\arg \max _{x \in D} \mu_{t-1}(x)+\beta_{t} \sigma_{t-1}(x)$
+\newline\textbf{EI}: $\left(\mu(x)\text{-}f(x^\text{+})\text{-}\xi \right)\Phi(Z)\text{+}\sigma(x)\phi(Z) \to \sigma_x > 0; 0 \to \sigma(x) \text{=} 0$
+\newline \textit{where} : $\textbf{Z}\text{=}(\mu(x)\text{-}f(x^\text{+})\text{-}\xi)/(\sigma(x))\to\sigma_x > 0; 0\to\sigma(x)\text{=}0$
+\newline \textit{Alternatives}: Prob. of Improv.(PI), Infor. Directed Sampling
+\newline \textit{Thompson Sampling}: $x_{t+1} = \arg \max \tilde{f} \hspace{0.5cm}\tilde{f} \sim P(f|\mathcal D)$
+\newline Foreach $t$: $\tilde{f} \sim P\left(f \mid x_{1: t}, y_{1: t}\right) \rightarrow x_{t+1} \in \arg \max _{x \in D} \tilde{f}(x)$
+
+\section{Markov Decision Processes(MDP)}
+$J(\pi) = \mathbb{E}[r(X_0,\pi(X_0))+\gamma r(X_1,\pi(X_1)) + \gamma^2 r(X_2,\pi(X_2)) + ...]$
+\newline $V^{\pi}(x)=J\left(\pi \mid X_{0}=x\right)=\mathbb{E}\left[\sum_{t=0}^{\infty} \gamma^{t} r\left(X_{t}, \pi\left(X_{t}\right)\right) \mid X_{0}=x\right]$
+\newline Recursion: $V^{\pi}(x)=r(x, \pi(x))+\gamma \sum_{x^{\prime}} P\left(x^{\prime} \mid x, \pi(x)\right) V^{\pi}\left(x^{\prime}\right)$
+\newline \textit{Fixed point iteration} $V^{\pi} = r^{\pi} + \gamma T^{\pi} V^{\pi}$
+\newline $V^{\pi}_i = V^{\pi}(x_i)$, $r^{\pi}_i = r^{\pi}(x_i,\pi(x_i))$, $T^{\pi}_{i,j} = P\left(x_j \mid x_i, \pi(x_i)\right)$
+
+\subsection{Policy Iteration: $\pi$, $V^{\pi}(x) \rightarrow \pi_G$}
+
+\subsection{Value Iteration $V_0(x) = max_a r(x, a)$}
+$Q_{t}(x, a)\text{=}r(x, a)\text{+}\gamma \sum_{x^{\prime}} P\left(x^{\prime} \mid x, a\right) V_{t\text{-}1}\left(x^{\prime}\right)$, $V_{t}(x)\text{=}\max _{a} Q_{t}(x, a)$
+\newline Stop when $\left\|V_{t}-V_{t-1}\right\|_{\infty}=\max _{x}\left|V_{t}(x)-V_{t-1}(x)\right| \leq \varepsilon$
+
+\subsection{POMDP = Belief-state MDP}
+$P\left(Y_{t+1}=y \mid b_{t}, a_{t}\right)=\sum_{x, x^{\prime}} b_{t}(x) P\left(x^{\prime} \mid x, a_{t}\right) P\left(y \mid x^{\prime}\right)$
+\newline $b_{t+1}\left(x^{\prime}\right)=\frac{1}{Z} \sum_{x} b_{t}(x) P\left(X_{t+1}=x^{\prime} \mid X_{t}=x, a_{t}\right) P\left(y_{t+1} \mid x^{\prime}\right)$
+\newline $r\left(b_{t}, a_{t}\right)=\sum_{x} b_{t}(x) r\left(x, a_{t}\right)$
+
+\section{Reinforcement Learning (RL)}
+Exploration (rnd A) $\rightarrow$ poor in rewards
+\newline Exploitation (best A) $\rightarrow$ stuck in suboptimum
+\newline \textbf{On-Policy}: Agent $\to$ action, choose exploration/exploitation
+\newline \textbf{Off-Policy}: Agent $\not\to$ actions, only observational data
+
+\subsection{Model-based RL}
+Learn MDP and optimize policy based on estimated MDP
+\newline Estimate transitions $P\left(X_{t+1} \mid X_{t}, A\right) \approx \frac{\operatorname{Count}\left(X_{t+1}, X_{t}, A\right)}{\operatorname{Count}\left(X_{t}, A\right)}$
+\newline Estimate rewards $r(x, a) \approx \frac{1}{N_{x, a}} \sum_{t: X_{t}=x, A_{t}=a} R_{t}$
+
+\subsubsection{$\epsilon_t$ Greedy}
+With probability $\epsilon_t$: Pick random action
+\newline With probability $(1-\epsilon_t)$: Pick best action
+
+\subsubsection{$R_{max}$ Algorithm}
+Input: $x_0, \gamma$
+\newline Init: $\forall x,a$: $x^*\to$ MDP, $r(x, a) = R_{max}$, $P(x^* | x, a) = 1$, $\pi$:
+\newline exec $\pi$, $\forall x_{visited},a_{visited}$: update $r(x, a)$, $P(x' | x, a)$, recomp. $\pi$
+\newline Every T timesteps, $R_{max}\to$ near-opt reward $||$ visit unkn. $(x,a)$
+
+\subsubsection{Receding-Horizon/Model-Predictive control (MPC)}
+$\max _{a_{t: t+H-1}} \sum_{\tau=t: t+H-1} \gamma^{\tau-t} r_{\tau}\left(x_{\tau}, a_{\tau}\right)$ s.t. $x_{\tau+1}=f\left(x_{\tau}, a_{\tau}\right)$
+\newline $x_{\tau}:=x_{\tau}\left(a_{t: \tau-1}\right):=f\left(f\left(\ldots\left(f\left(x_{t}, a_{t}\right), a_{t+1}\right), \ldots\right), a_{\tau-1}\right)$
+\newline $J_{H}\left(a_{t: t+H-1}\right):=\sum_{\tau=t: t+H-1} \gamma^{\tau-t} r_{\tau}\left(x_{\tau}\left(a_{t: \tau-1}\right), a_{\tau}\right)$
+\newline Pick $a_{t:t+H}^{(i^*)}$ that optimizes $i^{*}=\arg \max _{i \in\{1 . . m\}} J_{H}\left(a_{t: t+H-1}^{(i)}\right)$
+\newline If $V$: $J_{H}\left(a_{t: t+H-1}\right)\leftarrow J_{H}\left(a_{t: t+H-1}\right)+\gamma^{H} V\left(x_{t+H}\right)$
+
+\subsubsection{MPC for stochastic transition models}
+$\max _{a_{t: t\text{+}H\text{-}1}} \mathbb{E}_{x_{t\text{+}1: t\text{+}H}}\left[\sum_{\tau=t: t\text{+}H\text{-}1} \gamma^{\tau\text{-}t} r_{\tau}\text{+}\gamma^{H} V\left(x_{t\text{+}H}\right) \mid a_{t: t\text{+}H\text{-}1}\right]$
+\newline $J_{H}\left(a_{t: t\text{+}H\text{-}1}\right)\text{:= }\mathbb{E}_{x_{t\text{+}1: t\text{+}H}}\left[\sum_{\tau\text{=}t: t\text{+}H\text{-}1} \gamma^{\tau\text{-}t} r_{\tau}\text{+}\gamma^{H} V\left(x_{t\text{+}H}\right) \mid a_{t: t\text{+}H\text{-}1}\right]$
+
+\subsubsection{Unknown Dynamics ($f$ and $r$ are unknown)}
+Due to the Markovian structure of the MDP, observed transitions and rewards are (conditionally) independent
+
+\subsection{Model-free RL}
+Estimate the value function directly
+
+\subsubsection{Temporal Difference (TD)-Learning}
+$V^{\pi}_{t\text{+}1} \text{=} (1\text{-}\alpha_t)V^{\pi}_t(x)\text{+}\alpha_t(r\text{+}\gamma V^{\pi}_t(x'))$
+\space\space\space\space\space\space $\delta \text{=} r\text{+}\gamma V^{\pi]}_{t}(x')\text{-}V^{\pi}(x)$
+%$V(x) \leftarrow\left(1-\alpha_{t}\right) V(x)+\alpha_{t}\left(r+\gamma V\left(x^{\prime}\right)\right)$
+\newline $\ell_{2}\left(\theta ; x, x^{\prime}, r\right)=\frac{1}{2}\left(V(x ; \theta)-r-\gamma V\left(x^{\prime} ; \theta_{\text {old }}\right)\right)^{2}$
+
+\subsubsection{Q-Learning}
+$Q^{*}(x, a)\text{=}r(x, a)\text{+}\gamma \sum_{x^{\prime}} P\left(x^{\prime} \mid x, a\right) V^{*}\left(x^{\prime}\right)$, $V^{*}(x)\text{=}\max _{a} Q^{*}(x, a)$
+\newline $Q(x, a) \leftarrow\left(1-\alpha_{t}\right) Q(x, a)+\alpha_{t}\left(r+\gamma \max _{a^{\prime}} Q\left(x^{\prime}, a^{\prime}\right)\right)$
+
+\subsubsection{Policy Gradients Methods}
+$J(\theta)=\mathbb{E}_{x_{0: T}, a_{0: T} \sim \pi_{\theta}} \sum_{t=0}^{T} \gamma^{t} r\left(x_{t}, a_{t}\right)=\mathbb{E}_{\tau \sim \pi_{\theta}} r(\tau)$
+\newline $\nabla J(\theta)=\nabla \mathbb{E}_{\tau \sim \pi_{\theta}} r(\tau)=\mathbb{E}_{\tau \sim \pi_{\theta}}\left[r(\tau) \nabla \log \pi_{\theta}(\tau)\right]$
+\newline Exploiting the MDP structure $r(\tau)=\sum_{t=0}^{T} \gamma^{t} r\left(s_{t}, a_{t}\right)$:
+\newline $\pi_{\theta}(\tau)=P\left(x_{0}\right) \prod_{t=0}^{T} \pi\left(a_{t} \mid x_{t} ; \theta\right) P\left(x_{t+1} \mid x_{t}, a_{t}\right)$
+\newline $\mathbb{E}_{\tau \sim \pi_{\theta}}\left[r(\tau) \nabla \log \pi_{\theta}(\tau)\right]=\mathbb{E}_{\tau \sim \pi_{\theta}}\left[r(\tau) \sum_{t=0}^{T} \nabla \log \pi\left(a_{t} \mid x_{t} ; \theta\right)\right]$
+\newline Reducing Variance(Baseline $b$):
+\newline $\mathbb{E}_{\tau \sim \pi_{\theta}}\left[r(\tau) \nabla \log \pi_{\theta}(\tau)\right]=\mathbb{E}_{\tau \sim \pi_{\theta}}\left[(r(\tau)-b) \nabla \log \pi_{\theta}(\tau)\right]$
+\newline State-dependent baselines: $\mathbb{E}_{\tau \sim \pi_{\theta}}\left[\sum_{t=0}^{T} r(\tau) \nabla \log \pi\left(a_{t} \mid x_{t} ; \theta\right)\right]$
+\newline $=\mathbb{E}_{\tau \sim \pi_{\theta}}\left[\sum_{t=0}^{T}\left(r(\tau)-b\left(\tau_{0: t-1}\right)\right) \nabla \log \pi\left(a_{t} \mid x_{t} ; \theta\right)\right]$
+\newline  For example, $b\left(\tau_{0: t-1}\right)=\sum_{t^{\prime}=0}^{t-1} \gamma^{t^{\prime}} r_{t^{\prime}}$
+\newline  $\nabla J(\theta)=\mathbb{E}_{\tau \sim \pi_{\theta}}\left[\sum_{t=0}^{T} \gamma^{t} G_{t} \nabla \log \pi\left(a_{t} \mid x_{t} ; \theta\right)\right]$
+\newline  $G_{t}=\sum_{t^{\prime}=t}^{T} \gamma^{t^{\prime}-t} r_{t^{\prime}}$ reward to go followed action $\alpha_t$
+\newline \textbf{On}: RF, AC methods, TRPO, $R_{max}$, optimistic Q-Learning
+\newline \textbf{Off}: DDPG, TD3, normal SAC, Q-Learning, optimistic Q-Learning with noise
+
+\section{REINFORCE Algorithm}
+\textbf{Input} Init a parametrized policy distr. $\pi(a|x,\theta)$ then \textbf{Loop }
+\newline Generate an episode  $\tau^{(i)}$ (rollout) sampling from $\pi$
+\newline For t = 0,...T in the recorded episode
+\newline \textbf{Set} $G_t = R_t$ to the return from step t 
+\newline \textbf{Update} $\theta \leftarrow \theta + \eta \gamma^t G_t \nabla_{\theta}\log \pi(A_t
+|X_t;\theta) = \theta + \eta \nabla_{\theta}J(\theta) $
+\newline \textbf{+ Baselines :} \textbf{rtg} $G_t = \sum _{t' = t}^T  \gamma ^ {t'-t}r_{t'} $
+
+\subsubsection{Actor-Critic (AC) Algorithm}
+Advantage $A^{\pi}(x, a)=Q^{\pi}(x, a)-V^{\pi}(x)$
+\newline $\nabla J(\theta)=\mathbb{E}_{\tau \sim \pi_{\theta}}\left[\sum_{t=0}^{\infty} \gamma^{t} Q\left(x_{t}, a_{t} ; \theta_{Q}\right) \nabla \log \pi\left(a_{t} \mid x_{t} ; \theta\right)\right] =$
+\newline $\mathbb{E}_{(x, a) \sim \pi_{\theta}}\left[Q\left(x, a ; \theta_{Q}\right) \nabla \log \pi(a \mid x ; \theta)\right]$
+\newline $\rho(x)=\sum_{t=0}^{\infty} \gamma^{t} p\left(x_{t}=x\right)$
+\newline - Allows application in the online (non-episodic) setting
+\newline $\theta_{\pi} \leftarrow \theta_{\pi}-\eta_{t} Q\left(x, a ; \theta_{Q}\right) \nabla \log \pi\left(a \mid x ; \theta_{\pi}\right)$
+\newline $\theta_{Q} \leftarrow \theta_{Q}\text{-}\eta_{t}\left(Q\left(x, a ; \theta_{Q}\right)\text{-}r\text{-}\gamma Q\left(x^{\prime}, \pi\left(x^{\prime}, \theta_{\pi}\right) ; \theta_{Q}\right)\right) \nabla Q\left(x, a ; \theta_{Q}\right)$
+
+\subsubsection{A2C Algorithm: Variance reduction via baselines}
+$\theta_{\pi} \leftarrow \theta_{\pi}+\eta_{t}\left[Q\left(x, a ; \theta_{Q}\right)-V\left(x ; \theta_{V}\right)\right] \nabla \log \pi\left(a \mid x ; \theta_{\pi}\right)$
+\newline Advantage Function Estimate: $ \left[Q\left(x, a ; \theta_{Q}\right)-V\left(x ; \theta_{V}\right)\right] $
+
+\subsubsection{Replace exact maximum by parametrized policy}
+$L\left(\theta_{Q}\right)\text{=}\sum_{\left(x, a, r, x^{\prime}\right) \in D}\left(r\text{+}\gamma Q\left(x^{\prime}, \pi\left(x^{\prime} ; \theta_{\pi}\right) ; \theta_{Q}^{\text {old }}\right)\text{-}Q\left(x, a ; \theta_{Q}\right)\right)^{2}$
+
+\subsubsection{Deep Deterministic Policy Gradients (DDPG)}
+Actor Critic Method
+
+\section{Reinforcement Learning via Function Approximation}
+Parametrization
+
+\subsection{Parametric Value Function Approximation}
+To scale to large state spaces, learn an approximation of (action) value function $V(x;\theta)$ or $Q(x,a;\theta)$
+
+\subsubsection{Examples}
+(Deep) Neural Networks $\rightarrow$ Deep RL; Gradients for Q-learning with Function Approximation; Neural Fitted Q-iteration / DQN; Double DQN
+
+\subsection{Policy Search Methods (Deal. w/ large action sets)}
+Learning a Parameterized Policy $\pi(x) = \pi(x;\theta)$
+\newline For episodic tasks (i.e., can "reset" "agent"), can compute expected reward $J(\theta)$ by "rollouts"
+\newline Find optimal parameters through global optimization
+$\theta^{*}=\arg \max _{\theta} J(\theta)$
+
+\section{Langevin}
+V is diffbar und convex: $(\nabla V(x)\text{-}\nabla V(y))(x\text{-}y)\geq 0$
+
+\raggedcolumns
+\end{multicols*}
+\end{document}
